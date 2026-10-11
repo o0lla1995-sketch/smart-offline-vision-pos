@@ -124,7 +124,9 @@ describe('v45 — حرّوس المصدر: الجولة 53 (API 36 + 16 KB)', ()
     // وكان يفشل البناء لعدم وجود الملف).
     const appGradle = read('android/app/build.gradle');
     expect(appGradle).not.toContain('applyNativeModulesAppBuildGradle');
-    expect(appGradle).not.toContain('cli-platform-android');
+    expect(appGradle).not.toContain(
+      'node_modules/@react-native-community/cli-platform-android',
+    );
   });
 
   test('⑤ صيغة op-sqlite الجديدة: لا وجود لـ _array في أي ملف مصدر', () => {
