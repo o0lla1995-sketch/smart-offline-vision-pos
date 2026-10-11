@@ -132,6 +132,9 @@ describe('v45 — حرّوس المصدر: الجولة 53 (API 36 + 16 KB)', ()
     // وكان يفشل البناء لعدم وجود الملف).
     const appGradle = read('android/app/build.gradle');
     expect(appGradle).not.toContain('applyNativeModulesAppBuildGradle');
+    // وربط مشاريع المكتبات باعتماديات التطبيق (شرط RN 0.75+ وإلا
+    // فشل configureCMake لأن مجلدات codegen لا تُنشأ).
+    expect(appGradle).toContain('autolinkLibrariesWithApp()');
     expect(appGradle).not.toContain(
       'node_modules/@react-native-community/cli-platform-android',
     );
