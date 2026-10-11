@@ -79,6 +79,14 @@ describe('v45 — حرّوس المصدر: الجولة 53 (API 36 + 16 KB)', ()
     expect(pkg.dependencies['@op-engineering/op-sqlite']).toBe('11.2.6');
     // التنقل بقي على الجيل السادس — لا تغيير في منطق الشاشات.
     expect(pkg.dependencies['@react-navigation/native']).toBe('6.1.18');
+    // RN 0.77 لم تعد تحزم الـ CLI — أمر autolinking الافتراضي
+    // (npx @react-native-community/cli config) يحتاجها مثبتة، وإلا
+    // نزّل npx أحدث نسخة غير متوافقة وأنتج config فارغاً فيفشل
+    // البناء عند generateAutolinkingPackageList. الإصدار 18 هو
+    // المقابل لعهد RN 0.77.
+    expect(pkg.devDependencies['@react-native-community/cli']).toBe(
+      '18.0.0',
+    );
     // وإضافة reanimated اختفت من إعدادات babel (السطر الوظيفي فقط —
     // التعليقات قد تذكر الاسم توثيقاً).
     const babel = read('babel.config.js');
