@@ -159,7 +159,7 @@ describe('v38 #9 — ترحيل v22 لقاعدة قديمة', () => {
     const cols = await db.execute(
       `SELECT name FROM pragma_table_info('stocktake_items')`,
     );
-    const names = (cols.rows?._array ?? []).map(
+    const names = (cols.rows ?? []).map(
       (r: {name: string}) => r.name,
     );
     expect(names).toContain('variant_id');
@@ -169,7 +169,7 @@ describe('v38 #9 — ترحيل v22 لقاعدة قديمة', () => {
     const idx = await db.execute(
       `SELECT name FROM sqlite_master WHERE type = 'index' AND name = 'idx_stocktake_items_line'`,
     );
-    expect((idx.rows?._array ?? []).length).toBe(1);
+    expect((idx.rows ?? []).length).toBe(1);
 
     // صفان لنفس المنتج (واحد عادي وواحد لمتغير) معاً بلا تعارض.
     const {ProductRepo} = load('src/database/repositories/ProductRepo');

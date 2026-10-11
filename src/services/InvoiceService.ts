@@ -70,7 +70,7 @@ async function maxReturnSequenceInDb(prefix: string): Promise<number> {
       'SELECT return_number AS ref FROM sale_returns WHERE return_number LIKE ?',
       [`${prefix}%`],
     );
-    for (const row of result.rows?._array ?? []) {
+    for (const row of result.rows ?? []) {
       const seq = returnSequence(String(row.ref ?? ''));
       if (seq > max) {
         max = seq;
@@ -121,7 +121,7 @@ async function maxSequenceInDb(prefix: string): Promise<number> {
       'SELECT invoice_number FROM sales WHERE invoice_number LIKE ?',
       [`${prefix}%`],
     );
-    for (const row of result.rows?._array ?? []) {
+    for (const row of result.rows ?? []) {
       const seq = invoiceSequence(String(row.invoice_number ?? ''));
       if (seq > max) {
         max = seq;
@@ -166,7 +166,7 @@ async function maxDebtSequenceInDb(debtPrefix: string): Promise<number> {
       'SELECT invoice_number FROM sales WHERE invoice_number LIKE ?',
       [`${debtPrefix}%`],
     );
-    for (const row of salesResult.rows?._array ?? []) {
+    for (const row of salesResult.rows ?? []) {
       consider(row.invoice_number);
     }
   } catch {
@@ -177,7 +177,7 @@ async function maxDebtSequenceInDb(debtPrefix: string): Promise<number> {
       'SELECT pos_invoice_ref FROM sila_debt_queue WHERE pos_invoice_ref LIKE ?',
       [`${debtPrefix}%`],
     );
-    for (const row of queueResult.rows?._array ?? []) {
+    for (const row of queueResult.rows ?? []) {
       consider(row.pos_invoice_ref);
     }
   } catch {
@@ -712,7 +712,7 @@ export const InvoiceService = {
       const result = await getDb().execute('SELECT invoice_number FROM sales');
       const cashByDay = new Map<string, number>();
       const debtByDay = new Map<string, number>();
-      for (const row of result.rows?._array ?? []) {
+      for (const row of result.rows ?? []) {
         const value = String(row.invoice_number ?? '').trim();
         let match = /^INV-(\d{8})-(\d+)$/.exec(value);
         if (match != null) {
@@ -738,7 +738,7 @@ export const InvoiceService = {
         const queue = await getDb().execute(
           'SELECT pos_invoice_ref FROM sila_debt_queue',
         );
-        for (const row of queue.rows?._array ?? []) {
+        for (const row of queue.rows ?? []) {
           const match = /^INV-D-(\d{8})-(\d+)$/.exec(
             String(row.pos_invoice_ref ?? '').trim(),
           );

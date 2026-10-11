@@ -84,7 +84,7 @@ export const ReportRepo = {
       [start, end],
     );
     const salesRow =
-      (salesResult.rows?._array?.[0] as
+      (salesResult.rows?.[0] as
         | {
             revenue?: number;
             cogs?: number;
@@ -105,7 +105,7 @@ export const ReportRepo = {
       [start, end],
     );
     const activityRow =
-      (activityResult.rows?._array?.[0] as
+      (activityResult.rows?.[0] as
         | {
             invoices?: number;
             returns_cnt?: number;
@@ -122,7 +122,7 @@ export const ReportRepo = {
        WHERE ${EFFECTIVE_IN_RANGE}`,
       [start, end],
     );
-    const itemsRow = itemsResult.rows?._array?.[0] as
+    const itemsRow = itemsResult.rows?.[0] as
       | {items?: number}
       | undefined;
 
@@ -165,7 +165,7 @@ export const ReportRepo = {
        LIMIT ?`,
       [start, end, Math.min(Math.max(limit, 1), 50)],
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     return rows.map(row => ({
       productId: Number(row.product_id),
       name: String(row.name ?? ''),
@@ -194,7 +194,7 @@ export const ReportRepo = {
       [start, end],
     );
     const byDay = new Map<string, DailyPoint>();
-    for (const row of result.rows?._array ?? []) {
+    for (const row of result.rows ?? []) {
       const day = String(row.day ?? '');
       byDay.set(day, {
         day,
@@ -249,7 +249,7 @@ export const ReportRepo = {
        ORDER BY month ASC`,
       [start, end],
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     // لا مبيعات إطلاقاً — سلسلة فارغة (الرسم يعرض حالة الفراغ).
     if (rows.length === 0) {
       return [];
@@ -317,7 +317,7 @@ export const ReportRepo = {
       [start, end],
     );
     const byHour = new Map<number, HourlyPoint>();
-    for (const row of result.rows?._array ?? []) {
+    for (const row of result.rows ?? []) {
       const hour = Number(row.hour ?? 0);
       byHour.set(hour, {
         hour,
@@ -359,7 +359,7 @@ export const ReportRepo = {
              OR s.return_kind IS NOT NULL)`,
         [start, end],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         sila_cnt?: number | null;
         sila_amount?: number | null;
         local_cnt?: number | null;
@@ -412,7 +412,7 @@ export const ReportRepo = {
            AND invoice_number LIKE 'INV-V-%'`,
         [start, end],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         cnt?: number | null;
         goods_amount?: number | null;
       };
@@ -461,7 +461,7 @@ export const ReportRepo = {
        ORDER BY s.created_at ASC`,
       [start, end],
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     return rows.map(row => ({
       invoice: String(row.invoice ?? ''),
       createdAt: String(row.created_at ?? ''),

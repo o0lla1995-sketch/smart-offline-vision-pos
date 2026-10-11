@@ -46,7 +46,7 @@ export const VariantRepo = {
       'SELECT * FROM product_variants WHERE product_id = ? ORDER BY id ASC',
       [productId],
     );
-    return (result.rows?._array ?? []).map(rowToVariant);
+    return (result.rows ?? []).map(rowToVariant);
   },
 
   /** All variants grouped by product id (catalog refresh). */
@@ -54,7 +54,7 @@ export const VariantRepo = {
     const result = await getDb().execute(
       'SELECT * FROM product_variants ORDER BY id ASC',
     );
-    const rows = (result.rows?._array ?? []).map(rowToVariant);
+    const rows = (result.rows ?? []).map(rowToVariant);
     const map = new Map<number, ProductVariant[]>();
     for (const row of rows) {
       const arr = map.get(row.product_id) ?? [];

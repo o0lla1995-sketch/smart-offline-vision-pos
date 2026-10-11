@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme — Bold Commercial Dark (charcoal + orange). -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
@@ -6,6 +6,17 @@
         <item name="android:windowBackground">@color/app_bg</item>
         <item name="android:statusBarColor">@color/app_bg_dark</item>
         <item name="android:navigationBarColor">@color/app_bg_dark</item>
+        <!-- v45 (round-53): targeting API 35+ lets Android 15/16 ENFORCE
+             edge-to-edge (content drawn behind the transparent system
+             bars), which would change the carefully tuned POS layout on
+             every screen. Opting out keeps the exact same classic look
+             (solid dark status/navigation bars) that merchants use
+             today. Android 16 deprecates this opt-out but still honors
+             it; the attribute is simply ignored on Android 14 and
+             older. -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">
+            true
+        </item>
     </style>
 
     <!-- Cold-start splash theme — shows the Sela mark instantly on launch. -->

@@ -170,7 +170,7 @@ async function trimOverRecordedCollections(
     [customerId],
   );
   let trimmedTotal = 0;
-  for (const raw of rows.rows?._array ?? []) {
+  for (const raw of rows.rows ?? []) {
     if (remaining <= 0) {
       break;
     }
@@ -251,7 +251,7 @@ export const SilaRepo = {
         input.customerName ?? 'زبون'
       }`,
     );
-    return rowToDebt(row.rows?._array?.[0] ?? {});
+    return rowToDebt(row.rows?.[0] ?? {});
   },
 
   /** Oldest-first pending batch (≤ 100, §6.2). */
@@ -261,7 +261,7 @@ export const SilaRepo = {
        ORDER BY created_at ASC, local_id ASC LIMIT ?`,
       [limit],
     );
-    return (result.rows?._array ?? []).map(row =>
+    return (result.rows ?? []).map(row =>
       rowToDebt(row as Record<string, unknown>),
     );
   },
@@ -340,7 +340,7 @@ export const SilaRepo = {
          AND datetime(created_at, '+' || ? || ' minutes') < datetime('now')`,
       [minutes],
     );
-    const ids = (result.rows?._array ?? []).map(row =>
+    const ids = (result.rows ?? []).map(row =>
       Number((row as {local_id?: number}).local_id ?? 0),
     );
     for (const id of ids) {
@@ -376,7 +376,7 @@ export const SilaRepo = {
            SUM(CASE WHEN state = 'synced' THEN 1 ELSE 0 END) AS synced
          FROM sila_debt_queue`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         pending?: number | null;
         failed?: number | null;
         synced?: number | null;
@@ -404,7 +404,8 @@ export const SilaRepo = {
     search?: string,
   ): Promise<SilaDebtRow[]> {
     const clauses: string[] = [];
-    const args: unknown[] = [];
+    // v45 (round-53): op-sqlite 11 types execute() params as Scalar[]
+    const args: (string | number | boolean | null)[] = [];
     if (stateFilter) {
       clauses.push('state = ?');
       args.push(stateFilter);
@@ -422,7 +423,7 @@ export const SilaRepo = {
        LIMIT ? OFFSET ?`,
       [...args, limit, offset],
     );
-    return (result.rows?._array ?? []).map(row =>
+    return (result.rows ?? []).map(row =>
       rowToDebt(row as Record<string, unknown>),
     );
   },
@@ -435,7 +436,8 @@ export const SilaRepo = {
   ): Promise<number> {
     try {
       const clauses: string[] = [];
-      const args: unknown[] = [];
+      // v45 (round-53): op-sqlite 11 types execute() params as Scalar[]
+      const args: (string | number | boolean | null)[] = [];
       if (stateFilter) {
         clauses.push('state = ?');
         args.push(stateFilter);
@@ -450,7 +452,7 @@ export const SilaRepo = {
         `SELECT COUNT(*) AS cnt FROM sila_debt_queue ${where}`,
         args,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {cnt?: number};
+      const row = (result.rows?.[0] ?? {}) as {cnt?: number};
       return Number(row.cnt ?? 0);
     } catch {
       return 0;
@@ -462,7 +464,7 @@ export const SilaRepo = {
       'SELECT * FROM sila_debt_queue WHERE pos_invoice_ref = ? LIMIT 1',
       [invoiceRef],
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToDebt(row as Record<string, unknown>) : null;
   },
 
@@ -547,7 +549,7 @@ export const SilaRepo = {
         'SELECT pos_invoice_ref FROM sila_debt_queue',
       );
       const refs = new Set<string>();
-      for (const row of result.rows?._array ?? []) {
+      for (const row of result.rows ?? []) {
         const ref = String(
           (row as {pos_invoice_ref?: string}).pos_invoice_ref ?? '',
         );
@@ -570,7 +572,7 @@ export const SilaRepo = {
         'SELECT pos_invoice_ref FROM sila_debt_queue WHERE credit_covered_minor > 0',
       );
       const refs = new Set<string>();
-      for (const row of result.rows?._array ?? []) {
+      for (const row of result.rows ?? []) {
         const ref = String(
           (row as {pos_invoice_ref?: string}).pos_invoice_ref ?? '',
         );
@@ -605,7 +607,7 @@ export const SilaRepo = {
            COALESCE(SUM(CASE WHEN date(created_at, 'localtime') = date('now', 'localtime') THEN amount_minor ELSE 0 END), 0) AS today_minor
          FROM sila_debt_queue`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         all_minor?: number | null;
         all_count?: number | null;
         pending_minor?: number | null;
@@ -642,7 +644,7 @@ export const SilaRepo = {
         `SELECT local_id FROM sila_debt_queue
          WHERE state = 'failed' AND error_code = 'VALIDATION_ERROR'`,
       );
-      const ids = (result.rows?._array ?? []).map(row =>
+      const ids = (result.rows ?? []).map(row =>
         Number((row as {local_id?: number}).local_id ?? 0),
       );
       for (const id of ids) {
@@ -701,7 +703,7 @@ export const SilaRepo = {
            MAX(last_synced_at) AS last_sync
          FROM sila_customers`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         total_minor?: number | null;
         pos_minor?: number | null;
         app_minor?: number | null;
@@ -769,7 +771,7 @@ export const SilaRepo = {
          GROUP BY customer_id`,
       );
       const map = new Map<string, number>();
-      for (const row of result.rows?._array ?? []) {
+      for (const row of result.rows ?? []) {
         const r = row as {customer_id?: string; own_minor?: number | null};
         if (r.customer_id != null && String(r.customer_id).length > 0) {
           map.set(String(r.customer_id), Math.round(Number(r.own_minor ?? 0)));
@@ -820,7 +822,7 @@ export const SilaRepo = {
            GROUP BY customer_id
          )`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         total_minor?: number | null;
         debtors?: number | null;
       };
@@ -858,7 +860,7 @@ export const SilaRepo = {
             AND state IN ('pending','syncing')`,
         [customerId],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {minor?: number | null};
+      const row = (result.rows?.[0] ?? {}) as {minor?: number | null};
       return Math.max(0, Number(row.minor ?? 0));
     } catch {
       return 0;
@@ -904,7 +906,7 @@ export const SilaRepo = {
         input.customerName ?? 'زبون'
       }`,
     );
-    return rowToPayment(row.rows?._array?.[0] ?? {});
+    return rowToPayment(row.rows?.[0] ?? {});
   },
 
   async pendingPaymentBatch(limit = 100): Promise<SilaPaymentRow[]> {
@@ -913,7 +915,7 @@ export const SilaRepo = {
        ORDER BY created_at ASC, local_id ASC LIMIT ?`,
       [limit],
     );
-    return (result.rows?._array ?? []).map(row =>
+    return (result.rows ?? []).map(row =>
       rowToPayment(row as Record<string, unknown>),
     );
   },
@@ -993,7 +995,7 @@ export const SilaRepo = {
          AND datetime(created_at, '+' || ? || ' minutes') < datetime('now')`,
       [minutes],
     );
-    const ids = (result.rows?._array ?? []).map(row =>
+    const ids = (result.rows ?? []).map(row =>
       Number((row as {local_id?: number}).local_id ?? 0),
     );
     for (const id of ids) {
@@ -1018,7 +1020,7 @@ export const SilaRepo = {
            SUM(CASE WHEN state = 'synced' THEN 1 ELSE 0 END) AS synced
          FROM sila_payment_queue`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         pending?: number | null;
         failed?: number | null;
         synced?: number | null;
@@ -1051,7 +1053,7 @@ export const SilaRepo = {
          LIMIT ? OFFSET ?`,
         [limit, offset],
       );
-      return (result.rows?._array ?? []).map(row =>
+      return (result.rows ?? []).map(row =>
         rowToPayment(row as Record<string, unknown>),
       );
     } catch {
@@ -1073,7 +1075,7 @@ export const SilaRepo = {
         [`${prefix}%`],
       );
       const re = new RegExp('^RCP-(d{8})-(d+)$');
-      for (const row of result.rows?._array ?? []) {
+      for (const row of result.rows ?? []) {
         const match = re.exec(String(row.pos_receipt_ref ?? ''));
         if (match) {
           dbMax = Math.max(dbMax, parseInt(match[2], 10));
@@ -1115,7 +1117,7 @@ export const SilaRepo = {
          FROM sila_payment_queue
          WHERE COALESCE(kind, 'repayment') = 'repayment'`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         all_minor?: number | null;
         all_count?: number | null;
         today_minor?: number | null;
@@ -1161,7 +1163,7 @@ export const SilaRepo = {
            AND date(created_at, 'localtime') <= ?`,
         [from, to],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         cnt?: number | null;
         minor?: number | null;
       };
@@ -1187,7 +1189,7 @@ export const SilaRepo = {
          FROM sila_payment_queue
          WHERE COALESCE(kind, 'repayment') = 'return_reversal'`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         minor?: number | null;
       };
       return Number(row.minor ?? 0);
@@ -1210,7 +1212,7 @@ export const SilaRepo = {
          WHERE COALESCE(kind, 'repayment') = 'return_reversal'
            AND state IN ('pending','syncing')`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         minor?: number | null;
       };
       return Number(row.minor ?? 0);
@@ -1406,7 +1408,7 @@ export const SilaRepo = {
         `SELECT * FROM sila_customers
          ORDER BY pos_outstanding_minor DESC, name COLLATE NOCASE ASC`,
       );
-      return (result.rows?._array ?? []).map(row =>
+      return (result.rows ?? []).map(row =>
         rowToCustomer(row as Record<string, unknown>),
       );
     } catch {
@@ -1424,7 +1426,7 @@ export const SilaRepo = {
         'SELECT * FROM sila_customers WHERE customer_id = ? LIMIT 1',
         [customerId],
       );
-      const row = result.rows?._array?.[0];
+      const row = result.rows?.[0];
       return row ? rowToCustomer(row as Record<string, unknown>) : null;
     } catch {
       return null;
@@ -1472,7 +1474,7 @@ export const SilaRepo = {
            AND date(created_at, 'localtime') <= ?`,
         [from, to],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         minor?: number | null;
       };
       return Number(row.minor ?? 0);
@@ -1614,7 +1616,7 @@ export const SilaRepo = {
             'SELECT 1 AS x FROM sila_customers WHERE customer_id = ?',
             [row.customerId],
           );
-          if ((seen.rows?._array?.length ?? 0) === 0) {
+          if ((seen.rows?.length ?? 0) === 0) {
             newCustomerOffsets.set(row.customerId, -1);
           }
           continue;
@@ -1649,7 +1651,7 @@ export const SilaRepo = {
             row.customerId,
           ],
         );
-        const agg = (aggResult.rows?._array?.[0] ?? {}) as {
+        const agg = (aggResult.rows?.[0] ?? {}) as {
           cashier_minor?: number | null;
           cashier_synced_minor?: number | null;
           payments_all_minor?: number | null;
@@ -1712,7 +1714,7 @@ export const SilaRepo = {
                  WHERE customer_id = ?) AS app_minor`,
             [row.customerId, row.customerId, row.customerId],
           );
-          const re = (reagg.rows?._array?.[0] ?? {}) as {
+          const re = (reagg.rows?.[0] ?? {}) as {
             cashier_minor?: number | null;
             credit_minor?: number | null;
             app_minor?: number | null;
@@ -1730,7 +1732,7 @@ export const SilaRepo = {
           'SELECT reconcile_offset_minor FROM sila_customers WHERE customer_id = ?',
           [row.customerId],
         );
-        const cached = cacheRow.rows?._array?.[0] as
+        const cached = cacheRow.rows?.[0] as
           | {reconcile_offset_minor?: number | null}
           | undefined;
         if (cached == null) {
@@ -1882,7 +1884,7 @@ export const SilaRepo = {
                 reconcile_offset_minor
            FROM sila_customers`,
       );
-      for (const raw of customers.rows?._array ?? []) {
+      for (const raw of customers.rows ?? []) {
         const c = raw as {
           customer_id?: string;
           name?: string | null;
@@ -1911,7 +1913,7 @@ export const SilaRepo = {
                WHERE customer_id = ?) AS app_minor`,
           [customerId, customerId, customerId],
         );
-        const a = (agg.rows?._array?.[0] ?? {}) as {
+        const a = (agg.rows?.[0] ?? {}) as {
           cashier_synced_minor?: number | null;
           credit_minor?: number | null;
           app_minor?: number | null;
@@ -1967,7 +1969,7 @@ export const SilaRepo = {
            COALESCE(SUM(CASE WHEN date(detected_at, 'localtime') = date('now', 'localtime') THEN amount_minor ELSE 0 END), 0) AS today_minor
          FROM sila_app_collections`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         all_minor?: number | null;
         all_count?: number | null;
         today_minor?: number | null;
@@ -2004,7 +2006,7 @@ export const SilaRepo = {
            AND date(detected_at, 'localtime') <= ?`,
         [from, to],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         cnt?: number | null;
         minor?: number | null;
       };
@@ -2039,7 +2041,7 @@ export const SilaRepo = {
          LIMIT ? OFFSET ?`,
         [limit, offset],
       );
-      return (result.rows?._array ?? []).map(row => ({
+      return (result.rows ?? []).map(row => ({
         local_id: Number((row as {local_id?: number}).local_id ?? 0),
         customer_id: String((row as {customer_id?: string}).customer_id ?? ''),
         customer_name: (row as {customer_name?: string}).customer_name ?? null,
@@ -2065,7 +2067,7 @@ export const SilaRepo = {
       const result = await getDb().execute(
         'SELECT COUNT(*) AS cnt FROM sila_app_collections',
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {cnt?: number};
+      const row = (result.rows?.[0] ?? {}) as {cnt?: number};
       return Number(row.cnt ?? 0);
     } catch {
       return 0;
@@ -2085,7 +2087,7 @@ export const SilaRepo = {
         'SELECT customer_id, customer_name, amount_minor FROM sila_app_collections WHERE local_id = ?',
         [localId],
       );
-      const hit = row.rows?._array?.[0] as
+      const hit = row.rows?.[0] as
         | {customer_id?: string; customer_name?: string; amount_minor?: number}
         | undefined;
       if (hit == null) {
@@ -2103,7 +2105,9 @@ export const SilaRepo = {
          WHERE customer_id = ?`,
         [
           Math.max(0, Math.round(Number(hit.amount_minor ?? 0))),
-          hit.customer_id,
+          // op-sqlite 11 params cannot be undefined — null keeps the
+          // same "matches nothing" runtime behaviour as before.
+          hit.customer_id ?? null,
         ],
       );
       logDiag(

@@ -14,7 +14,7 @@
  * ③ تغيير اسم حزمة تطبيق المتجر com.sela → com.sela.pal دون أي
  *    تغيير وظيفي آخر (اسم الحزمة السابق غير متاح للنشر على
  *    Google Play) — الحزمة الجديدة محروس هنا.
- * ④ الإصدار 44.0.0 (52) والمفتاح الثابت: كل بناء CI يوقّع من
+ * ④ الإصدار 45.0.0 (53) (محدّث للجولة 53) والمفتاح الثابت: كل بناء CI يوقّع من
  *    GitHub Secrets بالمفتاح نفسه (abdala hanouna) فلا يتغير
  *    التوقيع مهما تطور التطبيق وتحدّث.
  */
@@ -44,8 +44,8 @@ describe('v44 — حرّوس المصدر: الجولة 52', () => {
     expect(pos).not.toContain('styles.viewShapeBtnText');
     // المبدّل في نقطة البيع هجر dense (الحجم الطبيعي الواسع).
     expect(pos.match(/<Segmented[\s\S]*?\sdense[\s\S]*?\/>/)).toBeNull();
-    expect(gradle).toContain('versionName "44.0.0"');
-    expect(gradle).toContain('versionCode 52');
+    expect(gradle).toContain('versionName "45.0.0"');
+    expect(gradle).toContain('versionCode 53');
   });
 
   test('③ اسم الحزمة الجديد com.sela.pal في كل مكان (التطبيق والترويسة)', () => {
@@ -76,7 +76,7 @@ describe('v44 — حرّوس المصدر: الجولة 52', () => {
     expect(wf).toContain('keystore.properties');
     // الإصدار الحزمة يحمل الحزمة الجديدة داخل config أيضًا.
     const config = read('src/core/config.ts');
-    expect(config).toContain("APP_VERSION = '44.0.0'");
-    expect(config).toContain('APP_BUILD_CODE = 52');
+    expect(config).toContain("APP_VERSION = '45.0.0'");
+    expect(config).toContain('APP_BUILD_CODE = 53');
   });
 });

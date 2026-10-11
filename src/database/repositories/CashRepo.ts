@@ -69,7 +69,7 @@ async function maxSequenceInDb(
     [prefix],
   );
   let max = 0;
-  for (const row of result.rows?._array ?? []) {
+  for (const row of result.rows ?? []) {
     const seq = Number(String((row as {ref?: string}).ref ?? '').slice(prefix.length));
     if (Number.isFinite(seq) && seq > max) {
       max = seq;
@@ -141,7 +141,7 @@ export const CashRepo = {
       'SELECT * FROM cash_movements WHERE local_id = ? LIMIT 1',
       [id],
     );
-    const record = row.rows?._array?.[0];
+    const record = row.rows?.[0];
     if (record == null) {
       throw new Error('فشل قراءة الحركة بعد تسجيلها');
     }
@@ -193,7 +193,7 @@ export const CashRepo = {
        LIMIT ? OFFSET ?`,
       params,
     );
-    return (result.rows?._array ?? []).map(row =>
+    return (result.rows ?? []).map(row =>
       rowToRecord(row as Record<string, unknown>),
     );
   },
@@ -231,7 +231,7 @@ export const CashRepo = {
         `SELECT COUNT(*) AS cnt FROM cash_movements WHERE ${clauses.join(' AND ')}`,
         params,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {cnt?: number};
+      const row = (result.rows?.[0] ?? {}) as {cnt?: number};
       return Number(row.cnt ?? 0);
     } catch {
       return 0;
@@ -255,7 +255,7 @@ export const CashRepo = {
     let expensesCount = 0;
     let withdrawalsCount = 0;
     let depositsCount = 0;
-    for (const raw of result.rows?._array ?? []) {
+    for (const raw of result.rows ?? []) {
       const row = raw as {kind?: string; cnt?: number; total?: number};
       if (row.kind === 'expense') {
         expensesMinor = Number(row.total ?? 0);
@@ -293,7 +293,7 @@ export const CashRepo = {
       let expensesMinor = 0;
       let withdrawalsMinor = 0;
       let depositsMinor = 0;
-      for (const raw of result.rows?._array ?? []) {
+      for (const raw of result.rows ?? []) {
         const row = raw as {kind?: string; total?: number};
         if (row.kind === 'expense') {
           expensesMinor = Number(row.total ?? 0);
@@ -322,7 +322,7 @@ export const CashRepo = {
        ORDER BY total DESC`,
       [from, to],
     );
-    return (result.rows?._array ?? []).map(raw => {
+    return (result.rows ?? []).map(raw => {
       const row = raw as {category?: string; cnt?: number; total?: number};
       return {
         category: String(row.category ?? 'أخرى'),
@@ -338,7 +338,7 @@ export const CashRepo = {
       'SELECT * FROM cash_movements WHERE local_id = ? LIMIT 1',
       [localId],
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToRecord(row as Record<string, unknown>) : null;
   },
 };

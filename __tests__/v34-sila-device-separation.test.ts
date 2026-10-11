@@ -283,7 +283,7 @@ describe('v34 — المطابقة الجهازية: تحصيل التطبيق �
       'SELECT reconcile_offset_minor AS o FROM sila_customers WHERE customer_id = ?',
       ['cus-d'],
     );
-    expect(Number((row.rows?._array?.[0] as {o?: number})?.o ?? 0)).toBe(0);
+    expect(Number((row.rows?.[0] as {o?: number})?.o ?? 0)).toBe(0);
 
     // الآن سداد تطبيق 30₪ على دين هذه النقطة → يُسجَّل كاملاً.
     const pass2 = await SilaRepo.reconcileAppCollections(

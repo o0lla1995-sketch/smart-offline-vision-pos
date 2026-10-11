@@ -4,7 +4,7 @@
  *
  * Interface parity with @op-engineering/op-sqlite v8 (as used by the app):
  *   open({name})                     → DB wrapper
- *   db.execute(sql, params?)         → { rows: {_array, length}, insertId, rowsAffected }
+ *   db.execute(sql, params?)         → { rows: Record<string,unknown>[], insertId, rowsAffected }
  *   db.transaction(async tx => ...)  → BEGIN/COMMIT/ROLLBACK discipline
  *
  * The DB path is taken from globalThis.__SELA_DB_PATH (set by tests):
@@ -29,14 +29,14 @@ class Shim {
     if (READER_RE.test(sql)) {
       const rows = stmt.all(...args);
       return {
-        rows: {_array: rows, length: rows.length},
+        rows,
         insertId: undefined,
         rowsAffected: 0,
       };
     }
     const info = stmt.run(...args);
     return {
-      rows: {_array: [], length: 0},
+      rows: [],
       insertId:
         info.lastInsertRowid == null ? undefined : Number(info.lastInsertRowid),
       rowsAffected: Number(info.changes ?? 0),

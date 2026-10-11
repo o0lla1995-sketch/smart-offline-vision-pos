@@ -67,7 +67,7 @@ export const UnitRepo = {
        END, sort_order ASC, id ASC`,
       scoped ? [mode as string] : [],
     );
-    return (result.rows?._array ?? []).map(rowToUnit);
+    return (result.rows ?? []).map(rowToUnit);
   },
 
   /** v34: إنشاء وحدة داخل نطاق نمط (وسم store_mode). */
@@ -86,7 +86,7 @@ export const UnitRepo = {
       'SELECT id FROM units WHERE name = ? COLLATE NOCASE AND (store_mode IS ? OR (store_mode IS NULL AND ? IS NULL))',
       [trimmed, scopeMode, scopeMode],
     );
-    const hit = existing.rows?._array?.[0] as {id?: number} | undefined;
+    const hit = existing.rows?.[0] as {id?: number} | undefined;
     if (hit?.id != null) {
       throw new Error('توجد وحدة بنفس الاسم مسبقاً');
     }
@@ -94,7 +94,7 @@ export const UnitRepo = {
       'SELECT COALESCE(MAX(sort_order), 0) + 1 AS next FROM units',
     );
     const next = Number(
-      (orderResult.rows?._array?.[0] as {next?: number})?.next ?? 1,
+      (orderResult.rows?.[0] as {next?: number})?.next ?? 1,
     );
     const result = await getDb().execute(
       'INSERT INTO units (name, short_name, sort_order, kind, store_mode) VALUES (?, ?, ?, ?, ?)',
@@ -127,7 +127,7 @@ export const UnitRepo = {
       'SELECT id FROM units WHERE name = ? COLLATE NOCASE AND (store_mode IS ? OR (store_mode IS NULL AND ? IS NULL))',
       [trimmed, scopeMode, scopeMode],
     );
-    const hit = existing.rows?._array?.[0] as {id?: number} | undefined;
+    const hit = existing.rows?.[0] as {id?: number} | undefined;
     if (hit?.id != null) {
       return hit.id;
     }
@@ -135,7 +135,7 @@ export const UnitRepo = {
       'SELECT COALESCE(MAX(sort_order), 0) + 1 AS next FROM units',
     );
     const next = Number(
-      (orderResult.rows?._array?.[0] as {next?: number})?.next ?? 1,
+      (orderResult.rows?.[0] as {next?: number})?.next ?? 1,
     );
     const result = await getDb().execute(
       'INSERT INTO units (name, short_name, sort_order, kind, store_mode) VALUES (?, ?, ?, ?, ?)',
@@ -172,7 +172,7 @@ export const UnitRepo = {
       'SELECT COUNT(*) AS cnt FROM product_units WHERE unit_id = ?',
       [id],
     );
-    const count = Number((usage.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0);
+    const count = Number((usage.rows?.[0] as {cnt?: number})?.cnt ?? 0);
     if (count > 0) {
       throw new Error(
         `الوحدة مستخدمة في ${count} منتج — احذفها من المنتجات أولاً`,
@@ -202,7 +202,7 @@ export const UnitRepo = {
        ORDER BY u.sort_order ASC`,
       [productId],
     );
-    return (result.rows?._array ?? []).map(rowToProductUnit);
+    return (result.rows ?? []).map(rowToProductUnit);
   },
 
   async findByBarcode(
@@ -220,7 +220,7 @@ export const UnitRepo = {
        LIMIT 1`,
       [clean],
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row
       ? {
           productId: Number(row.product_id),

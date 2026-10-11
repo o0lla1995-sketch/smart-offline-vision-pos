@@ -21,7 +21,6 @@ import {
   View,
 } from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 import {RootNavigator} from './src/navigation/RootNavigator';
 import {LicenseGate} from './src/components/LicenseGate';
@@ -128,7 +127,10 @@ export default function App(): React.JSX.Element {
   }, []);
 
   return (
-    <GestureHandlerRootView style={styles.root}>
+    // v45 (round-53): GestureHandlerRootView removed with the unused
+    // react-native-gesture-handler dependency (zero JS usage — plain
+    // View keeps the same root layout).
+    <View style={styles.root}>
       <SafeAreaProvider>
         <ThemedChrome />
         <Boundary label="التطبيق">
@@ -151,7 +153,7 @@ export default function App(): React.JSX.Element {
           <UIToaster />
         </Boundary>
       </SafeAreaProvider>
-    </GestureHandlerRootView>
+    </View>
   );
 }
 

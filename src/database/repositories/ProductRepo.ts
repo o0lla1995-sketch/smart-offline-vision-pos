@@ -114,7 +114,7 @@ export const ProductRepo = {
       conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     const sql = `SELECT p.* FROM products p ${where} ORDER BY p.name ASC LIMIT 500`;
     const result = await getDb().execute(sql, params);
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     return rows.map(rowToProduct);
   },
 
@@ -123,7 +123,7 @@ export const ProductRepo = {
       'SELECT * FROM products WHERE id = ?',
       [id],
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToProduct(row) : null;
   },
 
@@ -131,7 +131,7 @@ export const ProductRepo = {
     const result = await getDb().execute(
       'SELECT COUNT(*) AS cnt FROM products',
     );
-    const row = result.rows?._array?.[0] as {cnt?: number} | undefined;
+    const row = result.rows?.[0] as {cnt?: number} | undefined;
     return Number(row?.cnt ?? 0);
   },
 
@@ -232,7 +232,7 @@ export const ProductRepo = {
       'SELECT * FROM products WHERE barcode = ? ORDER BY is_archived ASC LIMIT 1',
       [clean],
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToProduct(row) : null;
   },
 
@@ -247,7 +247,7 @@ export const ProductRepo = {
          LIMIT 1`,
       [id, id],
     );
-    return (result.rows?._array ?? []).length > 0;
+    return (result.rows ?? []).length > 0;
   },
 
   /** v23 (round-29 #1): the fix for the FOREIGN KEY crash on
@@ -291,7 +291,7 @@ export const ProductRepo = {
         [id],
       );
       const untracked =
-        (row.rows?._array?.[0] as {stock_untracked?: number})
+        (row.rows?.[0] as {stock_untracked?: number})
           ?.stock_untracked === 1;
       if (untracked) {
         return;

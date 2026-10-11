@@ -456,7 +456,7 @@ describe('SILA debt returns (the reverse operation)', () => {
       .execute(
         "SELECT * FROM sila_payment_queue WHERE COALESCE(kind,'repayment') = 'return_reversal'",
       );
-    const reversal = (queueRows.rows?._array ?? [])[0] as {
+    const reversal = (queueRows.rows ?? [])[0] as {
       amount_minor?: number;
       payment_method?: string;
       state?: string;

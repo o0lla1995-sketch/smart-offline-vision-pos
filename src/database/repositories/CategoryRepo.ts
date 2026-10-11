@@ -34,7 +34,7 @@ export const CategoryRepo = {
         ? 'SELECT id, name, store_mode FROM categories WHERE store_mode = ? ORDER BY name ASC'
         : 'SELECT id, name, store_mode FROM categories ORDER BY name ASC';
     const result = await getDb().execute(sql, mode != null && mode.length > 0 ? [mode] : []);
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     return rows.map(rowToCategory);
   },
 
@@ -51,7 +51,7 @@ export const CategoryRepo = {
       'SELECT COUNT(*) AS cnt FROM categories WHERE lower(name) = lower(?) AND (store_mode IS ? OR (store_mode IS NULL AND ? IS NULL))',
       [trimmed, scopeMode, scopeMode],
     );
-    const existsRow = exists.rows?._array?.[0] as {cnt?: number} | undefined;
+    const existsRow = exists.rows?.[0] as {cnt?: number} | undefined;
     if ((existsRow?.cnt ?? 0) > 0) {
       throw new Error('توجد فئة بنفس الاسم مسبقاً');
     }
@@ -89,7 +89,7 @@ export const CategoryRepo = {
        ORDER BY c.name ASC`,
       mode != null && mode.length > 0 ? [mode] : [],
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     return rows.map(row => ({
       ...rowToCategory(row),
       productCount: Number(row.product_count ?? 0),

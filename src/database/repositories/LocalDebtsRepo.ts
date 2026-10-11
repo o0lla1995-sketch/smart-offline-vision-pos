@@ -83,7 +83,7 @@ async function maxLocalDebtSequence(): Promise<number> {
     const result = await getDb().execute(
       "SELECT invoice_ref FROM local_debts WHERE invoice_ref LIKE 'INV-L-%'",
     );
-    for (const row of result.rows?._array ?? []) {
+    for (const row of result.rows ?? []) {
       const match = /^INV-L-\d{8}-(\d+)$/.exec(String(row.invoice_ref ?? ''));
       if (match) {
         max = Math.max(max, parseInt(match[1], 10));
@@ -96,7 +96,7 @@ async function maxLocalDebtSequence(): Promise<number> {
     const sales = await getDb().execute(
       "SELECT invoice_number FROM sales WHERE invoice_number LIKE 'INV-L-%'",
     );
-    for (const row of sales.rows?._array ?? []) {
+    for (const row of sales.rows ?? []) {
       const match = /^INV-L-\d{8}-(\d+)$/.exec(
         String(row.invoice_number ?? ''),
       );
@@ -149,7 +149,7 @@ export const LocalDebtsRepo = {
       const result = await getDb().execute(
         "SELECT receipt_ref FROM local_payments WHERE receipt_ref LIKE 'RCP-L-%'",
       );
-      for (const row of result.rows?._array ?? []) {
+      for (const row of result.rows ?? []) {
         const match = /^RCP-L-\d{8}-(\d+)$/.exec(String(row.receipt_ref ?? ''));
         if (match) {
           dbMax = Math.max(dbMax, parseInt(match[1], 10));
@@ -213,7 +213,7 @@ export const LocalDebtsRepo = {
         'SELECT name FROM sila_customers WHERE id_number = ? LIMIT 1',
         [idNumber],
       );
-      const silaName = (silaHit.rows?._array?.[0] as {name?: string})?.name;
+      const silaName = (silaHit.rows?.[0] as {name?: string})?.name;
       if (silaName != null) {
         throw new Error(
           `هذا الرقم مسجل في صِلة لـ«${silaName}» — سجّل ديونته عبر صِلة أو اربط الحسابين من ملفه بعد الإنشاء`,
@@ -255,7 +255,8 @@ export const LocalDebtsRepo = {
     },
   ): Promise<void> {
     const sets: string[] = [];
-    const args: unknown[] = [];
+    // v45 (round-53): op-sqlite 11 types execute() params as Scalar[]
+    const args: (string | number | boolean | null)[] = [];
     if (patch.idNumber != null) {
       sets.push('id_number = ?');
       args.push(patch.idNumber.trim());
@@ -292,7 +293,7 @@ export const LocalDebtsRepo = {
         'SELECT * FROM local_customers WHERE id = ? LIMIT 1',
         [id],
       );
-      const row = result.rows?._array?.[0];
+      const row = result.rows?.[0];
       return row ? rowToCustomer(row as Record<string, unknown>) : null;
     } catch {
       return null;
@@ -305,7 +306,7 @@ export const LocalDebtsRepo = {
         'SELECT * FROM local_customers WHERE id_number = ? LIMIT 1',
         [idNumber],
       );
-      const row = result.rows?._array?.[0];
+      const row = result.rows?.[0];
       return row ? rowToCustomer(row as Record<string, unknown>) : null;
     } catch {
       return null;
@@ -323,7 +324,7 @@ export const LocalDebtsRepo = {
         'SELECT * FROM local_customers WHERE sila_customer_id = ? LIMIT 1',
         [cid],
       );
-      const row = result.rows?._array?.[0];
+      const row = result.rows?.[0];
       return row ? rowToCustomer(row as Record<string, unknown>) : null;
     } catch {
       return null;
@@ -367,7 +368,7 @@ export const LocalDebtsRepo = {
          FROM local_customers lc
          ORDER BY (debt_minor - paid_minor) DESC, lc.name COLLATE NOCASE ASC`,
       );
-      return (result.rows?._array ?? []).map(row => {
+      return (result.rows ?? []).map(row => {
         const customer = rowToCustomer(row as Record<string, unknown>);
         const debtTotalMinor = Number(
           (row as {debt_minor?: number}).debt_minor ?? 0,
@@ -423,7 +424,7 @@ export const LocalDebtsRepo = {
       [invoiceRef],
     );
     logDiag('localDebts', `دُوّن دين محلي ${invoiceRef}`);
-    return rowToDebt(row.rows?._array?.[0] ?? {});
+    return rowToDebt(row.rows?.[0] ?? {});
   },
 
   /** Records a repayment from a local account (RCP-L series).
@@ -457,7 +458,7 @@ export const LocalDebtsRepo = {
       [receiptRef],
     );
     logDiag('localDebts', `دُوّن سداد محلي ${receiptRef}`);
-    return rowToPayment(row.rows?._array?.[0] ?? {});
+    return rowToPayment(row.rows?.[0] ?? {});
   },
 
   async listDebts(customerId: number): Promise<LocalDebt[]> {
@@ -466,7 +467,7 @@ export const LocalDebtsRepo = {
         'SELECT * FROM local_debts WHERE local_customer_id = ? ORDER BY id DESC',
         [customerId],
       );
-      return (result.rows?._array ?? []).map(row =>
+      return (result.rows ?? []).map(row =>
         rowToDebt(row as Record<string, unknown>),
       );
     } catch {
@@ -480,7 +481,7 @@ export const LocalDebtsRepo = {
         'SELECT * FROM local_payments WHERE local_customer_id = ? ORDER BY id DESC',
         [customerId],
       );
-      return (result.rows?._array ?? []).map(row =>
+      return (result.rows ?? []).map(row =>
         rowToPayment(row as Record<string, unknown>),
       );
     } catch {
@@ -506,7 +507,7 @@ export const LocalDebtsRepo = {
         'SELECT amount_minor, migrated FROM local_debts WHERE invoice_ref = ? LIMIT 1',
         [invoiceRef],
       );
-      const row = result.rows?._array?.[0] as
+      const row = result.rows?.[0] as
         | {amount_minor?: number; migrated?: number}
         | undefined;
       if (row == null) {
@@ -536,7 +537,7 @@ export const LocalDebtsRepo = {
          LIMIT 1`,
         [invoiceRef],
       );
-      const row = result.rows?._array?.[0] as
+      const row = result.rows?.[0] as
         | {
             name?: string;
             phone?: string | null;
@@ -572,7 +573,7 @@ export const LocalDebtsRepo = {
                       WHERE p.local_customer_id = ?), 0) AS outstanding`,
         [localCustomerId, localCustomerId],
       );
-      const row = result.rows?._array?.[0] as
+      const row = result.rows?.[0] as
         | {outstanding?: number | null}
         | undefined;
       return row == null ? null : Number(row.outstanding ?? 0);
@@ -598,7 +599,7 @@ export const LocalDebtsRepo = {
            AND date(created_at, 'localtime') <= ?`,
         [from, to],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         cnt?: number | null;
         minor?: number | null;
       };
@@ -631,7 +632,7 @@ export const LocalDebtsRepo = {
                      - COALESCE((SELECT SUM(amount_minor) FROM local_payments p
                                 WHERE p.local_customer_id = lc.id), 0)) > 0)) AS debtors`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         debts_minor?: number;
         pays_minor?: number;
         customers?: number;

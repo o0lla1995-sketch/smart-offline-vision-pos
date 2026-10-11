@@ -131,7 +131,7 @@ export const VouchersRepo = {
       [input.idempotencyKey],
     );
     logDiag('sila', `بدء صرف قسيمة — إيصال ${input.posReceiptRef}`);
-    return rowToRedemption(row.rows?._array?.[0] ?? {});
+    return rowToRedemption(row.rows?.[0] ?? {});
   },
 
   /** Books a successful redemption: server facts + the sale link.
@@ -147,7 +147,7 @@ export const VouchersRepo = {
       'SELECT state, sale_id FROM voucher_redemptions WHERE local_id = ?',
       [localId],
     );
-    const prior = existing.rows?._array?.[0] as
+    const prior = existing.rows?.[0] as
       | {state?: string; sale_id?: number | null}
       | undefined;
     if (prior?.state === 'ok') {
@@ -214,7 +214,7 @@ export const VouchersRepo = {
        WHERE state = 'pending'
        ORDER BY created_at ASC, local_id ASC`,
     );
-    return (result.rows?._array ?? []).map(row =>
+    return (result.rows ?? []).map(row =>
       rowToRedemption(row as Record<string, unknown>),
     );
   },
@@ -228,7 +228,7 @@ export const VouchersRepo = {
            SUM(CASE WHEN state = 'failed' THEN 1 ELSE 0 END) AS failed
          FROM voucher_redemptions`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         pending?: number | null;
         ok?: number | null;
         failed?: number | null;
@@ -252,7 +252,8 @@ export const VouchersRepo = {
     search?: string,
   ): Promise<VoucherRedemptionRow[]> {
     const where: string[] = [];
-    const params: unknown[] = [];
+    // v45 (round-53): op-sqlite 11 types execute() params as Scalar[]
+    const params: (string | number | boolean | null)[] = [];
     if (state != null) {
       where.push('state = ?');
       params.push(state);
@@ -270,7 +271,7 @@ export const VouchersRepo = {
        ORDER BY created_at DESC, local_id DESC LIMIT ? OFFSET ?`,
       [...params, limit, offset],
     );
-    return (result.rows?._array ?? []).map(row =>
+    return (result.rows ?? []).map(row =>
       rowToRedemption(row as Record<string, unknown>),
     );
   },
@@ -281,7 +282,8 @@ export const VouchersRepo = {
   ): Promise<number> {
     try {
       const where: string[] = [];
-      const params: unknown[] = [];
+      // v45 (round-53): op-sqlite 11 types execute() params as Scalar[]
+      const params: (string | number | boolean | null)[] = [];
       if (state != null) {
         where.push('state = ?');
         params.push(state);
@@ -298,7 +300,7 @@ export const VouchersRepo = {
         `SELECT COUNT(*) AS cnt FROM voucher_redemptions ${whereSql}`,
         params,
       );
-      const row = result.rows?._array?.[0] as {cnt?: number} | undefined;
+      const row = result.rows?.[0] as {cnt?: number} | undefined;
       return Number(row?.cnt ?? 0);
     } catch {
       return 0;
@@ -310,7 +312,7 @@ export const VouchersRepo = {
       'SELECT * FROM voucher_redemptions WHERE pos_receipt_ref = ? LIMIT 1',
       [receiptRef],
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToRedemption(row as Record<string, unknown>) : null;
   },
 
@@ -319,7 +321,7 @@ export const VouchersRepo = {
       'SELECT * FROM voucher_redemptions WHERE local_id = ? LIMIT 1',
       [localId],
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToRedemption(row as Record<string, unknown>) : null;
   },
 
@@ -355,7 +357,7 @@ export const VouchersRepo = {
            AND date(vr.redeemed_at, 'localtime') <= ?`,
         [from, to],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         cnt?: number | null;
         value_minor?: number | null;
         counter_extra?: number | null;
@@ -435,7 +437,7 @@ export const VouchersRepo = {
       'SELECT * FROM campaign_debts WHERE campaign_id = ?',
       [server.campaign_id],
     );
-    const before = previous.rows?._array?.[0];
+    const before = previous.rows?.[0];
     await db.execute(
       `INSERT INTO campaign_debts (
         campaign_id, campaign_name, kind, campaign_status, merchant_status,
@@ -553,7 +555,7 @@ export const VouchersRepo = {
                ('ended', 'completed', 'cancelled', 'canceled',
                 'archived', 'inactive')`,
       );
-      const rows = (result.rows?._array ?? []) as {
+      const rows = (result.rows ?? []) as {
         campaign_name?: string | null;
         kind?: string | null;
       }[];
@@ -578,7 +580,7 @@ export const VouchersRepo = {
                   ELSE 2 END,
                 due_minor DESC, updated_at DESC`,
     );
-    return (result.rows?._array ?? []).map(row =>
+    return (result.rows ?? []).map(row =>
       rowToCampaign(row as Record<string, unknown>),
     );
   },
@@ -618,7 +620,7 @@ export const VouchersRepo = {
          FROM campaign_debts
          WHERE store_state IN ('active','completed')`,
       );
-      const row = (result.rows?._array?.[0] ?? {}) as Record<string, unknown>;
+      const row = (result.rows?.[0] ?? {}) as Record<string, unknown>;
       return {
         dueMinor: Number(row.due_minor ?? 0),
         redeemedMinor: Number(row.redeemed_minor ?? 0),
@@ -664,7 +666,7 @@ export const VouchersRepo = {
           'SELECT 1 AS hit FROM campaign_settlements WHERE settlement_id = ?',
           [entry.settlement_id],
         );
-        const existed = (known.rows?._array?.length ?? 0) > 0;
+        const existed = (known.rows?.length ?? 0) > 0;
         await db.execute(
           `INSERT INTO campaign_settlements (
             settlement_id, campaign_id, campaign_name, amount_minor,
@@ -729,7 +731,7 @@ export const VouchersRepo = {
            AND date(cs.created_at, 'localtime') <= ?`,
         [from, to],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         cnt?: number | null;
         minor?: number | null;
       };
@@ -764,7 +766,7 @@ export const VouchersRepo = {
            AND date(cs.created_at, 'localtime') <= ?`,
         [from, to],
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         cnt?: number | null;
         minor?: number | null;
       };
@@ -804,7 +806,7 @@ export const VouchersRepo = {
          WHERE state = 'ok' AND sale_id IS NULL AND cart_json IS NOT NULL
          ORDER BY redeemed_at ASC, local_id ASC`,
       );
-      return (result.rows?._array ?? [])
+      return (result.rows ?? [])
         .map(row => rowToRedemption(row as Record<string, unknown>))
         .filter(
           row =>
@@ -834,7 +836,7 @@ export const VouchersRepo = {
          ORDER BY cs.created_at DESC LIMIT ?`,
         [limit],
       );
-      return (result.rows?._array ?? []).map(row =>
+      return (result.rows ?? []).map(row =>
         rowToSettlement(row as Record<string, unknown>),
       );
     } catch {

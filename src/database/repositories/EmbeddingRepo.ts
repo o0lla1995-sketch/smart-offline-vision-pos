@@ -54,7 +54,7 @@ export const EmbeddingRepo = {
       'SELECT id FROM product_embeddings WHERE product_id = ? AND angle_label = ?',
       [productId, angle],
     );
-    const row = existing.rows?._array?.[0] as {id?: number} | undefined;
+    const row = existing.rows?.[0] as {id?: number} | undefined;
     if (row?.id != null) {
       await getDb().execute(
         'UPDATE product_embeddings SET embedding_data = ?, thumbnail_path = ? WHERE id = ?',
@@ -73,7 +73,7 @@ export const EmbeddingRepo = {
     const result = await getDb().execute(
       'SELECT product_id, embedding_data, angle_label FROM product_embeddings',
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     const decoded: DecodedEmbedding[] = [];
     for (const row of rows) {
       try {
@@ -107,7 +107,7 @@ export const EmbeddingRepo = {
       'SELECT embedding_data, angle_label, thumbnail_path FROM product_embeddings WHERE product_id = ?',
       [productId],
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     const out: ProductAngleRow[] = [];
     for (const row of rows) {
       try {
@@ -168,7 +168,7 @@ export const EmbeddingRepo = {
     const result = await getDb().execute(
       'SELECT COUNT(*) AS cnt FROM product_embeddings',
     );
-    const row = result.rows?._array?.[0] as {cnt?: number} | undefined;
+    const row = result.rows?.[0] as {cnt?: number} | undefined;
     return Number(row?.cnt ?? 0);
   },
 

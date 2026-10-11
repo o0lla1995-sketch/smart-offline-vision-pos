@@ -308,7 +308,7 @@ describe('v35 ① — لا مطابقة إلا ببرهان أرقام الجه�
       ['cus-3'],
     );
     expect(
-      Number((row.rows?._array?.[0] as {o?: number})?.o ?? 0),
+      Number((row.rows?.[0] as {o?: number})?.o ?? 0),
     ).toBe(900);
 
     // الدين كامل 20₪.
@@ -421,7 +421,7 @@ describe('v35 ③ — المطابقة الهابطة: شفاء التلوث ا�
       ['cus-heal'],
     );
     expect(
-      Number((rows.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0),
+      Number((rows.rows?.[0] as {cnt?: number})?.cnt ?? 0),
     ).toBe(0);
   });
 

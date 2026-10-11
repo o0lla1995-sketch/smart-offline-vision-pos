@@ -424,9 +424,9 @@ export interface BackupFile {
 }
 
 function rowsOf(result: {
-  rows?: {_array?: unknown[]};
+  rows?: unknown[];
 }): Record<string, unknown>[] {
-  return (result.rows?._array ?? []) as Record<string, unknown>[];
+  return (result.rows ?? []) as Record<string, unknown>[];
 }
 
 function nowLocal(): string {
@@ -480,7 +480,7 @@ export const BackupService = {
         .execute(
           'SELECT id, product_id, kind, color, size, stock_quantity, retail_price, cost_price FROM product_variants',
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db.execute(
         'SELECT product_id, angle_label, embedding_data, thumbnail_path FROM product_embeddings',
       ),
@@ -505,7 +505,7 @@ export const BackupService = {
            LEFT JOIN sale_return_items si ON si.return_id = sr.id
            ORDER BY sr.id ASC, si.id ASC`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db.execute(
         'SELECT id, started_at, completed_at, status, note FROM stocktakes',
       ),
@@ -537,34 +537,34 @@ export const BackupService = {
                 retry_count, created_at
          FROM sila_payment_queue`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db
         .execute(
           `SELECT id, id_number, name, phone, notes, sila_customer_id,
                 sila_linked_at, created_at
          FROM local_customers`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db
         .execute(
           `SELECT local_customer_id, invoice_ref, amount_minor, description,
                 migrated, migrated_ref, created_at
          FROM local_debts`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db
         .execute(
           `SELECT local_customer_id, receipt_ref, amount_minor, method, note,
                 created_at
          FROM local_payments`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db
         .execute(
           `SELECT customer_id, customer_name, amount_minor, detected_at
          FROM sila_app_collections`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db
         .execute(
           `SELECT idempotency_key, payload, campaign_id, campaign_name,
@@ -574,7 +574,7 @@ export const BackupService = {
                 error_message, retry_count, synced_at, created_at
          FROM voucher_redemptions`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db
         .execute(
           `SELECT campaign_id, campaign_name, kind, campaign_status,
@@ -585,14 +585,14 @@ export const BackupService = {
                 updated_at
          FROM campaign_debts`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
       db
         .execute(
           `SELECT settlement_id, campaign_id, campaign_name, amount_minor,
                 kind, status, method, reference, created_at
          FROM campaign_settlements`,
         )
-        .catch(() => ({rows: {_array: []}})),
+        .catch(() => ({rows: []})),
     ]);
 
     // v8.3 (round-12 #3): embed every product image as base64 so a
@@ -1551,7 +1551,7 @@ export const BackupService = {
               LIMIT 1`,
             [newProductId, item.variant_label ?? ''],
           );
-          const hit = variantRow.rows?._array?.[0] as {id?: number} | undefined;
+          const hit = variantRow.rows?.[0] as {id?: number} | undefined;
           newVariantId = hit?.id ?? null;
         }
         await tx.execute(

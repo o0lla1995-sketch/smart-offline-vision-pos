@@ -84,7 +84,7 @@ async function maxVoucherSequenceInDb(prefix: string): Promise<number> {
       'SELECT invoice_number FROM sales WHERE invoice_number LIKE ?',
       [`${prefix}%`],
     );
-    for (const row of sales.rows?._array ?? []) {
+    for (const row of sales.rows ?? []) {
       consider((row as {invoice_number?: string}).invoice_number);
     }
   } catch {
@@ -95,7 +95,7 @@ async function maxVoucherSequenceInDb(prefix: string): Promise<number> {
       'SELECT pos_receipt_ref FROM voucher_redemptions WHERE pos_receipt_ref LIKE ?',
       [`${prefix}%`],
     );
-    for (const row of redemptions.rows?._array ?? []) {
+    for (const row of redemptions.rows ?? []) {
       consider((row as {pos_receipt_ref?: string}).pos_receipt_ref);
     }
   } catch {

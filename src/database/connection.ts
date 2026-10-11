@@ -466,7 +466,7 @@ async function applyMigrations(database: DB): Promise<void> {
     const existing = await database.execute(
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('products') WHERE name = 'low_stock_threshold'",
     );
-    const hasColumn = (existing.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+    const hasColumn = (existing.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasColumn) {
       await database.execute(
         'ALTER TABLE products ADD COLUMN low_stock_threshold INTEGER',
@@ -481,7 +481,7 @@ async function applyMigrations(database: DB): Promise<void> {
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('products') WHERE name = 'barcode'",
     );
     const hasBarcode =
-      (productsCols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      (productsCols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasBarcode) {
       await database.execute('ALTER TABLE products ADD COLUMN barcode TEXT');
     }
@@ -490,7 +490,7 @@ async function applyMigrations(database: DB): Promise<void> {
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('sale_items') WHERE name = 'unit_name'",
     );
     const hasUnitName =
-      (saleItemsCols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      (saleItemsCols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasUnitName) {
       await database.execute(
         'ALTER TABLE sale_items ADD COLUMN unit_name TEXT',
@@ -565,7 +565,7 @@ async function applyMigrations(database: DB): Promise<void> {
     const cols = await database.execute(
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('products') WHERE name = 'sold_by_weight'",
     );
-    const hasWeight = (cols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+    const hasWeight = (cols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasWeight) {
       await database.execute(
         'ALTER TABLE products ADD COLUMN sold_by_weight INTEGER NOT NULL DEFAULT 0',
@@ -576,12 +576,12 @@ async function applyMigrations(database: DB): Promise<void> {
     const wakfCount = await database.execute(
       "SELECT COUNT(*) AS cnt FROM units WHERE name = 'وقية'",
     );
-    const wakfRow = (wakfCount.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+    const wakfRow = (wakfCount.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (wakfRow === 0) {
       const maxOrder = await database.execute(
         'SELECT MAX(sort_order) AS mx FROM units',
       );
-      const mx = (maxOrder.rows?._array?.[0] as {mx?: number | null})?.mx ?? 0;
+      const mx = (maxOrder.rows?.[0] as {mx?: number | null})?.mx ?? 0;
       await database.execute(
         'INSERT INTO units (name, short_name, sort_order) VALUES (?, ?, ?)',
         ['وقية', 'وقية', Number(mx) + 1],
@@ -599,7 +599,7 @@ async function applyMigrations(database: DB): Promise<void> {
     const kindCols = await database.execute(
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('units') WHERE name = 'kind'",
     );
-    const hasKind = (kindCols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+    const hasKind = (kindCols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasKind) {
       await database.execute(
         "ALTER TABLE units ADD COLUMN kind TEXT NOT NULL DEFAULT 'piece'",
@@ -633,7 +633,7 @@ async function applyMigrations(database: DB): Promise<void> {
         'SELECT id FROM units WHERE name = ? COLLATE NOCASE',
         [unit.name],
       );
-      const hit = existing.rows?._array?.[0] as {id?: number} | undefined;
+      const hit = existing.rows?.[0] as {id?: number} | undefined;
       if (hit?.id == null) {
         await database.execute(
           // v34: وحدات كتالوج v5 توسم بالنمط الافتراضي (بقالة) —
@@ -703,7 +703,7 @@ async function applyMigrations(database: DB): Promise<void> {
     const embCols = await database.execute(
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('product_embeddings') WHERE name = 'thumbnail_path'",
     );
-    const hasThumb = (embCols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+    const hasThumb = (embCols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasThumb) {
       await database.execute(
         'ALTER TABLE product_embeddings ADD COLUMN thumbnail_path TEXT',
@@ -759,7 +759,7 @@ async function applyMigrations(database: DB): Promise<void> {
         "SELECT COUNT(*) AS cnt FROM pragma_table_info('sila_customers') WHERE name = ?",
         [column],
       );
-      const has = (check.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      const has = (check.rows?.[0] as {cnt?: number})?.cnt ?? 0;
       if (!has) {
         await database.execute(
           `ALTER TABLE sila_customers ADD COLUMN ${column} ${ddl}`,
@@ -844,7 +844,7 @@ async function applyMigrations(database: DB): Promise<void> {
         `SELECT COUNT(*) AS cnt FROM pragma_table_info('${table}') WHERE name = ?`,
         [column],
       );
-      const has = (check.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      const has = (check.rows?.[0] as {cnt?: number})?.cnt ?? 0;
       if (!has) {
         await database.execute(
           `ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`,
@@ -891,7 +891,7 @@ async function applyMigrations(database: DB): Promise<void> {
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('sila_customers') WHERE name = 'reconcile_offset_minor'",
     );
     const hasOffset =
-      (offsetCheck.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      (offsetCheck.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasOffset) {
       await database.execute(
         'ALTER TABLE sila_customers ADD COLUMN reconcile_offset_minor INTEGER NOT NULL DEFAULT 0',
@@ -973,7 +973,7 @@ async function applyMigrations(database: DB): Promise<void> {
     const v12Cols = await database.execute(
       'PRAGMA table_info(campaign_debts)',
     );
-    const v12HasActive = (v12Cols.rows?._array ?? []).some(
+    const v12HasActive = (v12Cols.rows ?? []).some(
       row => String((row as {name?: unknown}).name ?? '') === 'active_in_store',
     );
     if (!v12HasActive) {
@@ -1020,7 +1020,7 @@ async function applyMigrations(database: DB): Promise<void> {
     // this store) start ACTIVE so nothing the store is already
     // claiming disappears; feed-only rows start inactive.
     const columns = await database.execute('PRAGMA table_info(campaign_debts)');
-    const hasActiveColumn = (columns.rows?._array ?? []).some(
+    const hasActiveColumn = (columns.rows ?? []).some(
       row => String((row as {name?: unknown}).name ?? '') === 'active_in_store',
     );
     if (!hasActiveColumn) {
@@ -1055,7 +1055,7 @@ async function applyMigrations(database: DB): Promise<void> {
     // installs; this heals v13 installs (active_in_store 1 →
     // 'active') and any pre-v13 stragglers (redemptions → 'active').
     const columns = await database.execute('PRAGMA table_info(campaign_debts)');
-    const names = (columns.rows?._array ?? []).map(row =>
+    const names = (columns.rows ?? []).map(row =>
       String((row as {name?: unknown}).name ?? ''),
     );
     if (!names.includes('store_state')) {
@@ -1094,7 +1094,7 @@ async function applyMigrations(database: DB): Promise<void> {
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('products') WHERE name = 'is_archived'",
     );
     const hasArchived =
-      (productCols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      (productCols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasArchived) {
       await database.execute(
         'ALTER TABLE products ADD COLUMN is_archived INTEGER NOT NULL DEFAULT 0',
@@ -1111,7 +1111,7 @@ async function applyMigrations(database: DB): Promise<void> {
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('sales') WHERE name = 'returned_minor'",
     );
     const hasReturned =
-      (salesCols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      (salesCols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasReturned) {
       await database.execute(
         'ALTER TABLE sales ADD COLUMN returned_minor REAL NOT NULL DEFAULT 0',
@@ -1124,7 +1124,7 @@ async function applyMigrations(database: DB): Promise<void> {
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('sales') WHERE name = 'return_kind'",
     );
     const hasReturnKind =
-      (salesCols2.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      (salesCols2.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasReturnKind) {
       await database.execute(`ALTER TABLE sales ADD COLUMN return_kind TEXT`);
     }
@@ -1137,7 +1137,7 @@ async function applyMigrations(database: DB): Promise<void> {
     const pqCols = await database.execute(
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('sila_payment_queue') WHERE name = 'kind'",
     );
-    const hasKind = (pqCols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+    const hasKind = (pqCols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasKind) {
       await database.execute(
         `ALTER TABLE sila_payment_queue ADD COLUMN kind TEXT NOT NULL DEFAULT 'repayment'`,
@@ -1245,7 +1245,7 @@ async function applyMigrations(database: DB): Promise<void> {
     const cols = await database.execute(
       "SELECT COUNT(*) AS cnt FROM pragma_table_info('products') WHERE name = 'expiry_date'",
     );
-    const hasExpiry = (cols.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+    const hasExpiry = (cols.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!hasExpiry) {
       await database.execute('ALTER TABLE products ADD COLUMN expiry_date TEXT');
     }
@@ -1269,7 +1269,7 @@ async function applyMigrations(database: DB): Promise<void> {
         "SELECT COUNT(*) AS cnt FROM pragma_table_info('sila_customers') WHERE name = ?",
         [column],
       );
-      const has = (check.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      const has = (check.rows?.[0] as {cnt?: number})?.cnt ?? 0;
       if (!has) {
         await database.execute(
           `ALTER TABLE sila_customers ADD COLUMN ${column} ${ddl}`,
@@ -1309,7 +1309,7 @@ async function applyMigrations(database: DB): Promise<void> {
         `SELECT COUNT(*) AS cnt FROM pragma_table_info('${table}') WHERE name = ?`,
         [column],
       );
-      const has = (check.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      const has = (check.rows?.[0] as {cnt?: number})?.cnt ?? 0;
       if (!has) {
         await database.execute(
           `ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`,
@@ -1352,7 +1352,7 @@ async function applyMigrations(database: DB): Promise<void> {
         `SELECT COUNT(*) AS cnt FROM pragma_table_info('${table}') WHERE name = ?`,
         [column],
       );
-      const has = (check.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      const has = (check.rows?.[0] as {cnt?: number})?.cnt ?? 0;
       if (!has) {
         await database.execute(
           `ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`,
@@ -1376,7 +1376,7 @@ async function applyMigrations(database: DB): Promise<void> {
       variant_color: string | null;
       style_group: string;
     };
-    const legacy = (legacyRows.rows?._array ?? []) as unknown as LegacyRow[];
+    const legacy = (legacyRows.rows ?? []) as unknown as LegacyRow[];
     if (legacy.length > 0) {
       // تجميع بالاسم الأساسي للموديل (قبل « — »).
       const groups = new Map<string, LegacyRow[]>();
@@ -1434,7 +1434,7 @@ async function applyMigrations(database: DB): Promise<void> {
             [row.id, row.id],
           );
           const hasHistory =
-            (history.rows?._array ?? []).length > 0;
+            (history.rows ?? []).length > 0;
           if (hasHistory) {
             await database.execute(
               `UPDATE products SET is_archived = 1, stock_quantity = 0
@@ -1474,7 +1474,7 @@ async function applyMigrations(database: DB): Promise<void> {
         `SELECT COUNT(*) AS cnt FROM pragma_table_info('sale_returns') WHERE name = ?`,
         [column],
       );
-      const has = (check.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      const has = (check.rows?.[0] as {cnt?: number})?.cnt ?? 0;
       if (!has) {
         await database.execute(
           `ALTER TABLE sale_returns ADD COLUMN ${column} ${ddl}`,
@@ -1518,7 +1518,7 @@ async function applyMigrations(database: DB): Promise<void> {
       `SELECT COUNT(*) AS cnt FROM pragma_table_info('stocktake_items') WHERE name = 'variant_id'`,
     );
     const variantColExists =
-      (hasVariantCol.rows?._array?.[0] as {cnt?: number})?.cnt ?? 0;
+      (hasVariantCol.rows?.[0] as {cnt?: number})?.cnt ?? 0;
     if (!variantColExists) {
       await database.execute(`CREATE TABLE stocktake_items_v22 (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1585,7 +1585,7 @@ export async function initDatabase(): Promise<void> {
       const countResult = await db.execute(
         'SELECT COUNT(*) AS cnt FROM categories',
       );
-      const countRow = countResult.rows?._array?.[0] as
+      const countRow = countResult.rows?.[0] as
         | {cnt?: number}
         | undefined;
       if ((countRow?.cnt ?? 0) === 0) {
@@ -1600,7 +1600,7 @@ export async function initDatabase(): Promise<void> {
       }
       // Seed the default unit catalog (قطعة، كرتونة، كيلو…).
       const unitsCount = await db.execute('SELECT COUNT(*) AS cnt FROM units');
-      const unitsRow = unitsCount.rows?._array?.[0] as
+      const unitsRow = unitsCount.rows?.[0] as
         | {cnt?: number}
         | undefined;
       if ((unitsRow?.cnt ?? 0) === 0) {

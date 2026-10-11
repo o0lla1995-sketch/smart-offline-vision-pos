@@ -1,4 +1,11 @@
+// v45 (round-53): RN 0.77 moved autolinking INTO the React Native
+// Gradle Plugin (the old applyNativeModulesSettingsGradle hook from
+// @react-native-community/cli-platform-android is gone). This is the
+// official 0.77 template form — paths adapted to this repo.
+pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
+plugins { id("com.facebook.react.settings") }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+
 rootProject.name = 'sela'
-apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'
-includeBuild('../node_modules/@react-native/gradle-plugin')
+includeBuild("../node_modules/@react-native/gradle-plugin")

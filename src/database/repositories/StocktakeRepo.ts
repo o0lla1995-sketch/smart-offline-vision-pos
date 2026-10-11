@@ -76,7 +76,7 @@ export const StocktakeRepo = {
     const result = await getDb().execute(
       "SELECT * FROM stocktakes WHERE status = 'open' ORDER BY id DESC LIMIT 1",
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToStocktake(row) : null;
   },
 
@@ -85,7 +85,7 @@ export const StocktakeRepo = {
       'SELECT * FROM stocktakes ORDER BY id DESC LIMIT ?',
       [limit],
     );
-    return (result.rows?._array ?? []).map(rowToStocktake);
+    return (result.rows ?? []).map(rowToStocktake);
   },
 
   /** Creates a session and snapshots current stock for every product.
@@ -137,7 +137,7 @@ export const StocktakeRepo = {
     const result = await db.execute('SELECT * FROM stocktakes WHERE id = ?', [
       id,
     ]);
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     if (!row) {
       throw new Error('تعذر إنشاء جلسة الجرد');
     }
@@ -185,7 +185,7 @@ export const StocktakeRepo = {
        ORDER BY p.name ASC, si.variant_label ASC`,
       params,
     );
-    return (result.rows?._array ?? []).map(rowToItem);
+    return (result.rows ?? []).map(rowToItem);
   },
 
   /** v38: العدّ يكتب على صف (المنتج، المتغير) — المتغير NULL للصف
@@ -217,7 +217,7 @@ export const StocktakeRepo = {
        FROM stocktake_items WHERE stocktake_id = ?`,
       [stocktakeId],
     );
-    const row = result.rows?._array?.[0] ?? {};
+    const row = result.rows?.[0] ?? {};
     return {
       totalItems: Number(row.total_items ?? 0),
       countedItems: Number(row.counted_items ?? 0),
@@ -311,7 +311,7 @@ export const StocktakeRepo = {
       'SELECT * FROM stocktakes WHERE id = ?',
       [id],
     );
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToStocktake(row) : null;
   },
 };

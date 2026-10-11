@@ -21,7 +21,7 @@ import fs from 'fs';
 
 /** Column names of a table in the opened app DB. */
 function columns(db, table): string[] {
-  const rows = db.execute(`PRAGMA table_info(${table})`).rows._array as {
+  const rows = db.execute(`PRAGMA table_info(${table})`).rows as {
     name: string;
   }[];
   return rows.map(r => String(r.name));
@@ -118,7 +118,7 @@ describe('database startup & migrations', () => {
     expect(columns(db, 'products')).toContain('expiry_date');
     // Seed categories exist.
     const cats = db.execute('SELECT COUNT(*) AS c FROM categories').rows
-      ._array[0] as {c: number};
+      [0] as {c: number};
     expect(Number(cats.c)).toBeGreaterThanOrEqual(6);
   });
 
@@ -168,7 +168,7 @@ describe('database startup & migrations', () => {
     const row = db
       .execute(`SELECT active_in_store, store_state FROM campaign_debts
                 WHERE campaign_id = 'cmp-1'`)
-      .rows._array[0] as {active_in_store: number; store_state: string};
+      .rows[0] as {active_in_store: number; store_state: string};
     expect(Number(row.active_in_store)).toBe(0); // no redemptions at this store
     expect(String(row.store_state)).toBe('available');
     fs.rmSync(file, {force: true});
@@ -196,7 +196,7 @@ describe('database startup & migrations', () => {
     expect(columns(db, 'campaign_debts')).toContain('store_state');
     const row = db
       .execute(`SELECT store_state FROM campaign_debts WHERE campaign_id = 'cmp-2'`)
-      .rows._array[0] as {store_state: string};
+      .rows[0] as {store_state: string};
     // v13 switch ON → v14 must carry it into the lifecycle as 'active'.
     expect(String(row.store_state)).toBe('active');
     fs.rmSync(file, {force: true});
@@ -228,7 +228,7 @@ describe('database startup & migrations', () => {
     expect(columns(db, 'sales')).toContain('return_kind');
     const sale = db
       .execute(`SELECT total_amount, returned_minor FROM sales WHERE invoice_number = 'INV-20260101-0001'`)
-      .rows._array[0] as {total_amount: number; returned_minor: number};
+      .rows[0] as {total_amount: number; returned_minor: number};
     expect(Number(sale.total_amount)).toBeCloseTo(25.5, 5);
     expect(Number(sale.returned_minor)).toBe(0);
     expect(app.storage.getNumber(app.storage.KEYS.schemaVersion, 0)).toBe(22); // v38: جرد متغيرات الملابس (v21 كان الاستبدال بقيمة المرجع)
@@ -263,7 +263,7 @@ describe('database startup & migrations', () => {
 
     const db = app.connection.getDb();
     const check = db.execute('PRAGMA integrity_check').rows
-      ._array[0] as {integrity_check: string};
+      [0] as {integrity_check: string};
     expect(String(check.integrity_check)).toBe('ok');
 
     // Every CREATE INDEX in the schema must reference existing columns.
@@ -271,7 +271,7 @@ describe('database startup & migrations', () => {
       .execute(
         `SELECT name, tbl_name, sql FROM sqlite_master WHERE type = 'index' AND sql IS NOT NULL`,
       )
-      .rows._array as {name: string; tbl_name: string; sql: string}[];
+      .rows as {name: string; tbl_name: string; sql: string}[];
     expect(indexes.length).toBeGreaterThan(20);
     for (const idx of indexes) {
       expect(typeof idx.sql).toBe('string');

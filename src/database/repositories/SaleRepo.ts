@@ -233,7 +233,7 @@ export const SaleRepo = {
         );
         const isUntracked =
           (
-            untracked.rows?._array?.[0] as
+            untracked.rows?.[0] as
               | {stock_untracked?: number}
               | undefined
           )?.stock_untracked === 1;
@@ -258,7 +258,7 @@ export const SaleRepo = {
             [line.variantId],
           );
           const variantKind = (
-            kindRow.rows?._array?.[0] as {kind?: string} | undefined
+            kindRow.rows?.[0] as {kind?: string} | undefined
           )?.kind;
           if (variantKind === 'variant') {
             const variantUpdate = await tx.execute(
@@ -280,7 +280,7 @@ export const SaleRepo = {
               WHERE product_id = ? AND kind = 'variant' AND color = ?`,
             [line.productId, line.bundleColor],
           );
-          const rows = (colorRows.rows?._array ?? []) as {
+          const rows = (colorRows.rows ?? []) as {
             id: number;
             stock_quantity: number;
           }[];
@@ -353,12 +353,12 @@ export const SaleRepo = {
     const saleResult = await db.execute('SELECT * FROM sales WHERE id = ?', [
       saleId,
     ]);
-    const saleRow = saleResult.rows?._array?.[0];
+    const saleRow = saleResult.rows?.[0];
     const itemsResult = await db.execute(
       'SELECT * FROM sale_items WHERE sale_id = ? ORDER BY id ASC',
       [saleId],
     );
-    const itemRows = itemsResult.rows?._array ?? [];
+    const itemRows = itemsResult.rows ?? [];
 
     return {
       sale: rowToSale(saleRow ?? {}),
@@ -382,7 +382,7 @@ export const SaleRepo = {
         [saleId],
       );
       const map = new Map<number, number>();
-      for (const row of result.rows?._array ?? []) {
+      for (const row of result.rows ?? []) {
         map.set(
           Number((row as {sale_item_id?: unknown}).sale_item_id ?? 0),
           Number((row as {qty?: unknown}).qty ?? 0),
@@ -401,7 +401,7 @@ export const SaleRepo = {
         'SELECT * FROM sale_returns WHERE sale_id = ? ORDER BY id DESC',
         [saleId],
       );
-      return (result.rows?._array ?? []).map(rowToReturn);
+      return (result.rows ?? []).map(rowToReturn);
     } catch {
       return [];
     }
@@ -414,7 +414,7 @@ export const SaleRepo = {
         'SELECT * FROM sale_returns WHERE return_number = ? LIMIT 1',
         [returnNumber],
       );
-      const row = result.rows?._array?.[0];
+      const row = result.rows?.[0];
       return row ? rowToReturn(row) : null;
     } catch {
       return null;
@@ -428,7 +428,7 @@ export const SaleRepo = {
         'SELECT * FROM sale_return_items WHERE return_id = ? ORDER BY id ASC',
         [returnId],
       );
-      return (result.rows?._array ?? []).map(rowToReturnItem);
+      return (result.rows ?? []).map(rowToReturnItem);
     } catch {
       return [];
     }
@@ -440,7 +440,7 @@ export const SaleRepo = {
       'SELECT * FROM sale_return_exchanges WHERE return_id = ? ORDER BY id ASC',
       [returnId],
     );
-    return (result.rows?._array ?? []).map(row =>
+    return (result.rows ?? []).map(row =>
       rowToExchange(row as Record<string, unknown>),
     );
   },
@@ -626,7 +626,7 @@ export const SaleRepo = {
         );
         const isUntracked =
           (
-            untracked.rows?._array?.[0] as
+            untracked.rows?.[0] as
               | {stock_untracked?: number}
               | undefined
           )?.stock_untracked === 1;
@@ -648,7 +648,7 @@ export const SaleRepo = {
             [line.variantId],
           );
           const variantKind = (
-            kindRow.rows?._array?.[0] as {kind?: string} | undefined
+            kindRow.rows?.[0] as {kind?: string} | undefined
           )?.kind;
           if (variantKind === 'variant') {
             await tx.execute(
@@ -757,7 +757,7 @@ export const SaleRepo = {
           'SELECT stock_quantity, stock_untracked, has_variants FROM products WHERE id = ?',
           [line.productId],
         );
-        const prod = prodRow.rows?._array?.[0] as
+        const prod = prodRow.rows?.[0] as
           | {stock_quantity?: number; stock_untracked?: number; has_variants?: number}
           | undefined;
         if (prod == null) {
@@ -781,7 +781,7 @@ export const SaleRepo = {
             'SELECT stock_quantity FROM product_variants WHERE id = ?',
             [line.variantId],
           );
-          const vStock = vRow.rows?._array?.[0] as
+          const vStock = vRow.rows?.[0] as
             | {stock_quantity?: number}
             | undefined;
           const vAvail = Number(vStock?.stock_quantity ?? 0);
@@ -830,7 +830,7 @@ export const SaleRepo = {
           'SELECT amount_minor FROM local_debts WHERE invoice_ref = ? AND migrated = 0',
           [input.invoiceRef],
         );
-        const localDebt = localRow.rows?._array?.[0] as
+        const localDebt = localRow.rows?.[0] as
           | {amount_minor?: number | null}
           | undefined;
         if (localDebt != null && adjustMinor !== 0) {
@@ -925,7 +925,7 @@ export const SaleRepo = {
             'SELECT amount_minor, credit_covered_minor FROM sila_debt_queue WHERE pos_invoice_ref = ?',
             [input.invoiceRef],
           );
-          const debtRow = row.rows?._array?.[0] as
+          const debtRow = row.rows?.[0] as
             | {amount_minor?: number; credit_covered_minor?: number}
             | undefined;
           if (debtRow != null) {
@@ -972,7 +972,7 @@ export const SaleRepo = {
     const result = await db.execute('SELECT * FROM sale_returns WHERE id = ?', [
       returnId,
     ]);
-    return rowToReturn(result.rows?._array?.[0] ?? {});
+    return rowToReturn(result.rows?.[0] ?? {});
   },
 
   async listRecent(limit = 20): Promise<SaleRecord[]> {
@@ -980,7 +980,7 @@ export const SaleRepo = {
       'SELECT * FROM sales ORDER BY id DESC LIMIT ?',
       [Math.min(Math.max(limit, 1), 200)],
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     return rows.map(rowToSale);
   },
 
@@ -991,7 +991,7 @@ export const SaleRepo = {
       const result = await getDb().execute(
         'SELECT COALESCE(SUM(total_amount), 0) AS revenue FROM sales',
       );
-      const row = (result.rows?._array?.[0] ?? {}) as {
+      const row = (result.rows?.[0] ?? {}) as {
         revenue?: number | null;
       };
       return Number(row.revenue ?? 0);
@@ -1005,7 +1005,7 @@ export const SaleRepo = {
       'SELECT * FROM sale_items WHERE sale_id = ? ORDER BY id ASC',
       [saleId],
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     return rows.map(rowToItem);
   },
 
@@ -1113,7 +1113,7 @@ export const SaleRepo = {
        LIMIT ? OFFSET ?`,
       [...params, options.limit, options.offset],
     );
-    const rows = result.rows?._array ?? [];
+    const rows = result.rows ?? [];
     return rows.map(row => ({
       ...rowToSale(row),
       itemsCount: Number(row.items_count ?? 0),
@@ -1125,7 +1125,7 @@ export const SaleRepo = {
     const result = await getDb().execute('SELECT * FROM sales WHERE id = ?', [
       saleId,
     ]);
-    const row = result.rows?._array?.[0];
+    const row = result.rows?.[0];
     return row ? rowToSale(row) : null;
   },
 
@@ -1144,7 +1144,7 @@ export const SaleRepo = {
         'SELECT * FROM sales WHERE invoice_number = ? LIMIT 1',
         [trimmed],
       );
-      const row = result.rows?._array?.[0];
+      const row = result.rows?.[0];
       return row ? rowToSale(row) : null;
     } catch {
       return null;
@@ -1153,7 +1153,7 @@ export const SaleRepo = {
 
   async countAll(): Promise<number> {
     const result = await getDb().execute('SELECT COUNT(*) AS cnt FROM sales');
-    const row = result.rows?._array?.[0] as {cnt?: number} | undefined;
+    const row = result.rows?.[0] as {cnt?: number} | undefined;
     return Number(row?.cnt ?? 0);
   },
 

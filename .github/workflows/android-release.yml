@@ -31,7 +31,11 @@ jobs:
       - name: Setup Android SDK components
         run: |
           yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "ndk;26.1.10909125" "cmake;3.22.1" > /dev/null || true
+          # v45 (round-53): NDK r27 (16 KB page-size default for all
+          # from-source native libs) + the android-36 platform and
+          # matching build-tools required by targetSdk/compileSdk 36.
+          sdkmanager "ndk;27.1.12297006" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          sdkmanager "cmake;3.22.1" > /dev/null || true
 
       - name: Install JS dependencies
         run: npm ci
@@ -131,7 +135,11 @@ jobs:
       - name: Setup Android SDK components
         run: |
           yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "ndk;26.1.10909125" "cmake;3.22.1" > /dev/null || true
+          # v45 (round-53): NDK r27 (16 KB page-size default for all
+          # from-source native libs) + the android-36 platform and
+          # matching build-tools required by targetSdk/compileSdk 36.
+          sdkmanager "ndk;27.1.12297006" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          sdkmanager "cmake;3.22.1" > /dev/null || true
 
       - name: Install JS dependencies
         run: npm ci
