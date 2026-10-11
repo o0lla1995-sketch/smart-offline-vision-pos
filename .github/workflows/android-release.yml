@@ -30,12 +30,18 @@ jobs:
 
       - name: Setup Android SDK components
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          # v45 (round-53): NDK r27 (16 KB page-size default for all
-          # from-source native libs) + the android-36 platform and
-          # matching build-tools required by targetSdk/compileSdk 36.
-          sdkmanager "ndk;27.1.12297006" "platforms;android-36" "build-tools;36.0.0" > /dev/null
-          sdkmanager "cmake;3.22.1" > /dev/null || true
+          # v45 (round-53): recent runner images removed sdkmanager from
+          # PATH — resolve it via ANDROID_HOME (falling back to PATH).
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          echo "using: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          # NDK r27 (16 KB page-size default for all from-source native
+          # libs) + the android-36 platform and matching build-tools
+          # required by targetSdk/compileSdk 36. Strict — no || true —
+          # so a missing component fails loudly instead of silently.
+          "$SDKMANAGER" "ndk;27.1.12297006" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          "$SDKMANAGER" "cmake;3.22.1" > /dev/null || true
 
       - name: Install JS dependencies
         run: npm ci
@@ -134,12 +140,18 @@ jobs:
 
       - name: Setup Android SDK components
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          # v45 (round-53): NDK r27 (16 KB page-size default for all
-          # from-source native libs) + the android-36 platform and
-          # matching build-tools required by targetSdk/compileSdk 36.
-          sdkmanager "ndk;27.1.12297006" "platforms;android-36" "build-tools;36.0.0" > /dev/null
-          sdkmanager "cmake;3.22.1" > /dev/null || true
+          # v45 (round-53): recent runner images removed sdkmanager from
+          # PATH — resolve it via ANDROID_HOME (falling back to PATH).
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          echo "using: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          # NDK r27 (16 KB page-size default for all from-source native
+          # libs) + the android-36 platform and matching build-tools
+          # required by targetSdk/compileSdk 36. Strict — no || true —
+          # so a missing component fails loudly instead of silently.
+          "$SDKMANAGER" "ndk;27.1.12297006" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          "$SDKMANAGER" "cmake;3.22.1" > /dev/null || true
 
       - name: Install JS dependencies
         run: npm ci
