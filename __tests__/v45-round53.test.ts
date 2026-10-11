@@ -38,15 +38,23 @@ describe('v45 — حرّوس المصدر: الجولة 53 (API 36 + 16 KB)', ()
     expect(props).toContain('android.suppressUnsupportedCompileSdk=36');
   });
 
-  test('② NDK r27 (محاذاة 16 KB افتراضية لكل ما يبنى من المصدر)', () => {
+  test('② NDK r28.2 (محاذاة 16 KB افتراضية لكل ما يبنى من المصدر)', () => {
     const gradle = read('android/build.gradle');
-    expect(gradle).toContain('ndkVersion = "27.1.12297006"');
+    expect(gradle).toContain('ndkVersion = "28.2.13676358"');
     expect(gradle).not.toContain('26.1.10909125');
+    expect(gradle).not.toContain('27.1.12297006');
     // CI يثبّت نفس NDK + منصة android-36 في وظيفتَي البناء معاً.
     const ci = read('.github/workflows/android-release.yml');
-    expect(ci.match(/ndk;27\.1\.12297006/g)?.length).toBe(2);
+    expect(ci.match(/ndk;28\.2\.13676358/g)?.length).toBe(2);
     expect(ci.match(/platforms;android-36/g)?.length).toBe(2);
     expect(ci.match(/build-tools;36\.0\.0/g)?.length).toBe(2);
+  });
+
+  test('② CameraX 1.4.2 (libimage_processing_util_jni محاذاة 16 KB)', () => {
+    const gradle = read('android/app/build.gradle');
+    expect(gradle).toContain('androidx.camera:camera-core:1.4.2');
+    expect(gradle).toContain('androidx.camera:camera-camera2:1.4.2');
+    expect(gradle).not.toContain(':1.3.4');
   });
 
   test('② mmkv 1.3.15 (محاذاة 16 KB) بدل 1.3.9 (كانت 4 KB)', () => {

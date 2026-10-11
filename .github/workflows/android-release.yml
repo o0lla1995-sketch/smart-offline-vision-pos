@@ -40,7 +40,7 @@ jobs:
           # libs) + the android-36 platform and matching build-tools
           # required by targetSdk/compileSdk 36. Strict — no || true —
           # so a missing component fails loudly instead of silently.
-          "$SDKMANAGER" "ndk;27.1.12297006" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          "$SDKMANAGER" "ndk;28.2.13676358" "platforms;android-36" "build-tools;36.0.0" > /dev/null
           "$SDKMANAGER" "cmake;3.22.1" > /dev/null || true
 
       - name: Install JS dependencies
@@ -150,7 +150,7 @@ jobs:
           # libs) + the android-36 platform and matching build-tools
           # required by targetSdk/compileSdk 36. Strict — no || true —
           # so a missing component fails loudly instead of silently.
-          "$SDKMANAGER" "ndk;27.1.12297006" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          "$SDKMANAGER" "ndk;28.2.13676358" "platforms;android-36" "build-tools;36.0.0" > /dev/null
           "$SDKMANAGER" "cmake;3.22.1" > /dev/null || true
 
       - name: Install JS dependencies
