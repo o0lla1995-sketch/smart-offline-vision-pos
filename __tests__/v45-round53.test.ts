@@ -120,6 +120,11 @@ describe('v45 — حرّوس المصدر: الجولة 53 (API 36 + 16 KB)', ()
     // غلاف Gradle المطابق لـ RN 0.77.
     const wrapper = read('android/gradle/wrapper/gradle-wrapper.properties');
     expect(wrapper).toContain('gradle-8.11.1-all.zip');
+    // ولا أثر لخطّاف cli-platform-android القديم (حُذف من RN 0.77
+    // وكان يفشل البناء لعدم وجود الملف).
+    const appGradle = read('android/app/build.gradle');
+    expect(appGradle).not.toContain('applyNativeModulesAppBuildGradle');
+    expect(appGradle).not.toContain('cli-platform-android');
   });
 
   test('⑤ صيغة op-sqlite الجديدة: لا وجود لـ _array في أي ملف مصدر', () => {

@@ -184,4 +184,7 @@ dependencies {
     }
 }
 
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+// v45 (round-53): RN 0.77 autolinking — the plugin applied above
+// ("com.facebook.react") + the settings.gradle autolinkLibrariesFromCommand
+// handle every native module; the legacy cli-platform-android script hook
+// is gone from RN 0.77 (package no longer ships native_modules.gradle).
